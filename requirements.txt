@@ -2,3 +2,9 @@ streamlit
 numpy
 pandas
 pykrx
+streamlit_extras.switch_page_button
+st_pages
+plotly
+yfinance
+matplotlib
+base64
