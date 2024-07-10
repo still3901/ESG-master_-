@@ -7,3 +7,4 @@ st_pages
 plotly
 yfinance
 matplotlib
+FinanceDataReader
