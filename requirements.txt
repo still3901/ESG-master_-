@@ -2,7 +2,7 @@ streamlit
 numpy
 pandas
 pykrx
-streamlit_extras.switch_page_button
+streamlit_extras
 st_pages
 plotly
 yfinance
