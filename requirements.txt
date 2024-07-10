@@ -7,4 +7,3 @@ st_pages
 plotly
 yfinance
 matplotlib
-base64
