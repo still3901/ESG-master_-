@@ -1,11 +1,11 @@
 import streamlit as st
+st.set_page_config(page_icon="💸", layout="wide")
 import pandas as pd
 import plotly.express as px
-import random
 from streamlit_extras.switch_page_button import switch_page
+import random
 
 # 페이지 설정: 넓은 레이아웃
-st.set_page_config(layout="wide")
 
 def display_title_and_description():
     # 페이지 제목 및 설명
@@ -22,6 +22,7 @@ def display_search_all_companies(df_0702):
 
     if search_query:
         df_search = df_0702[df_0702['회사명'].str.contains(search_query, case=False, na=False)]
+        df_search=df_search[df_search['years']==2023]
         st.write(f"검색 결과: {len(df_search)}개 기업이 검색되었습니다.")
         st.dataframe(df_search)
         
@@ -29,16 +30,16 @@ def display_search_all_companies(df_0702):
         if st.button(f"{search_query} 상세페이지로 이동"):
             st.session_state["selected_company"] = search_query
             switch_page("기업 상세 정보 페이지")
-        
+            
         st.markdown("<hr>", unsafe_allow_html=True)  # 구분선 추가
         
         # 검색된 기업의 GICS_Sector 값 가져오기
         if not df_search.empty:
-            first_result_sector = df_search.iloc[0]['GICS_Sector']
+            first_result_sector = df_search.iloc[0]['업종명']
             st.session_state['selected_sector'] = first_result_sector
-            
+            print(first_result_sector)
             # GICS_Sector가 변경될 수 있으므로, 섹터 데이터를 필터링합니다.
-            display_sector_data(first_result_sector, df_0702, search_query)
+        #    display_sector_data(first_result_sector, df_0702, search_query)
     else:
         # 초기화
         if 'selected_sector' in st.session_state:
@@ -48,60 +49,75 @@ def display_sector_buttons(sectors):
     # 섹터 선택 버튼
     selected_sector = st.session_state.get('selected_sector', None)
     cols = st.columns(len(sectors), gap="small")  # 균등한 열 분배 및 작은 간격
-    
-    for i, sector in enumerate(sectors):
-        # 버튼의 스타일을 설정하여 크기를 동일하게 설정
-        button_style = """
+    button_style = """
         <style>
         .stButton > button {
-            width: 100%;
+            width: 300%;
             height: 150%;
             box-sizing: border-box;
         }
         </style>
         """
-        st.markdown(button_style, unsafe_allow_html=True)
+    buttons_per_row = 9
+    for i in range(0, len(sectors), buttons_per_row):
+        cols = st.columns(buttons_per_row)
+        for j, sector in enumerate(sectors[i:i+buttons_per_row]):
+            if cols[j].button(sector, use_container_width=True):
+                selected_sector = sector
+
+                st.session_state['selected_sector'] = selected_sector
+
+    # for i, sector in enumerate(sectors):
+    #     # 버튼의 스타일을 설정하여 크기를 동일하게 설정
+
+    #     st.markdown(button_style, unsafe_allow_html=True)
         
-        if cols[i].button(sector, use_container_width=True):
-            selected_sector = sector
-            st.session_state['selected_sector'] = selected_sector
+    #     if cols[i].button(sector, use_container_width=True):
+    #         selected_sector = sector
+    #         st.session_state['selected_sector'] = selected_sector
     
     return selected_sector
-    
+
 def display_sector_data(selected_sector, df_0702, search_query=None):
     # 선택된 섹터에 따라 데이터를 필터링
-    df_filtered = df_0702[df_0702['GICS_Sector'] == selected_sector]
-
+    df_filtered = df_0702[df_0702['업종명'] == selected_sector]
+    
     if search_query:
         df_filtered['priority'] = df_filtered['회사명'].apply(lambda x: 0 if search_query in x else 1)
         df_filtered = df_filtered.sort_values(by='priority').drop(columns=['priority'])
-
+    
     st.subheader(f"{selected_sector} 섹터 기업 검색")
     
     # 필터링된 데이터 표시
     st.dataframe(df_filtered)
-    
     st.markdown("<hr>", unsafe_allow_html=True)  # 구분선 추가
-    display_esg_scores(df_0702, selected_sector)
     
-def display_esg_scores(df_0702, selected_sector=None):
+    display_esg_scores(df_0702, selected_sector)
+
+    
+def display_esg_scores(df_0702, selected_sector):
     # 등급을 숫자 값으로 매핑
     grade_mapping = {
-        'A+': 4,
-        'A': 4,
-        'B+': 3,
-        'B': 2,
-        'C': 1,
-        'D': 0
+        'A+': 3,
+        'A0': 2,
+        'B+': 1,
+        'B0': 0,
+        'C': 0,
+        'D': 0,
+        'B0 이하(자격없음)':0
     }
     
     # 숫자 값으로 매핑된 종합등급 추가
     df_0702['종합등급_숫자'] = df_0702['종합등급'].map(grade_mapping)
-
+    
+    ## 예측 등급만있는게아니라
+    
     # 업종별 평균 ESG 등급 계산
-    industries = ["소재(Ma)", "커뮤니케이션(Co)","임의소비재(Cd)","필수소비재(Cs)","에너지(En)","금융(Fn)"
-                  ,"헬스케어(He)","산업(In)","부동산(Re)","기술(Te)","유틸리티(Ut)","해당없음(NOT)"]
-    scores = df_0702[df_0702['GICS_Sector'].isin(industries)].groupby('GICS_Sector')['종합등급_숫자'].mean().reindex(industries).fillna(0)
+    industries = ['건설', '금속', '금융', '기계', '기타금융', '기타서비스', '기타제조업', '농업, 임업 및 어업',
+       '비금속', '서비스업', '섬유', '오락·문화', '운수', '유통업', '음식료품', '인프라', '전기전자',
+       '종이목재', '출판·매체복제', '통신업', '헬스케어', '화학']
+    df_0702_2023=df_0702[df_0702['years']==2023]
+    scores = df_0702_2023[df_0702_2023['업종명'].isin(industries)].groupby('업종명')['종합등급_숫자'].mean().reindex(industries).fillna(0)
 
     # 숫자 값을 다시 등급으로 매핑
     reverse_grade_mapping = {v: k for k, v in grade_mapping.items()}
@@ -119,8 +135,9 @@ def display_esg_scores(df_0702, selected_sector=None):
     # 평균 ESG 등급 기준으로 데이터 정렬
     industry_df = industry_df.sort_values(by='평균 ESG 등급', ascending=False)
 
-    st.header("업종별 평균 ESG등급")
+    st.header("섹터별 평균 ESG등급")
     # 바 차트 생성
+    
     fig = px.bar(industry_df, x='업종', y='평균 ESG 등급', text='평균 ESG 등급(레이블)')
     fig.update_traces(textposition='outside')
     
@@ -130,8 +147,8 @@ def display_esg_scores(df_0702, selected_sector=None):
     # y축 레이블을 등급으로 표기
     fig.update_yaxes(
         tickmode='array',
-        tickvals=[0, 1, 2, 3, 4],
-        ticktext=['D', 'C', 'B', 'B+', 'A/A+']
+        tickvals=[0, 1, 2],
+        ticktext=['B', 'B+', 'A/A+']
     )
     
     st.plotly_chart(fig)
@@ -148,8 +165,8 @@ def display_esg_scores(df_0702, selected_sector=None):
 def main():
     display_title_and_description()
     
-    if 'selected_sector' not in st.session_state:
-        st.session_state['selected_sector'] = None
+    if '업종명' not in st.session_state:
+        st.session_state['업종명'] = None
 
     # CSV 파일에서 데이터 로드
     DATA_PATH = "./"
@@ -159,16 +176,32 @@ def main():
     display_search_all_companies(df_0702)
     
     # 기업명이 입력되지 않았을 때만 섹터 선택 기능 표시
-    if 'selected_sector' not in st.session_state or st.session_state['selected_sector'] is None:
+    if '업종명' not in st.session_state or st.session_state['업종명'] is None:
         st.header("섹터를 선택하세요")
         
         # 섹터 목록 생성
-        sectors = df_0702['GICS_Sector'].unique()
+        sectors = df_0702['업종명'].unique()
         selected_sector = display_sector_buttons(sectors)
 
+        df_0702_2023=df_0702[df_0702['years']==2023]
+        df_0702_2023=df_0702_2023[['years','업종명','회사명','전년도ESG','종합등급','E_환경등급','S_사회등급','G_지배구조등급','성장성 등급','재무구조 등급']]
+        
+        def replace_value(x):
+            if x == 'A':
+                return 'A0'
+            elif x == 'B':
+                return 'B+'
+            elif x == 'B 이하(자격없음)':
+                return 'B0 이하(자격없음)'
+            else:
+                return x
+
+        # '업종명' 열에 함수 적용하여 값 변경
+        df_0702_2023['종합등급'] = df_0702_2023['종합등급'].apply(replace_value)
+        df_0702_2023=df_0702_2023.sort_values(by='종합등급')
         # 섹터가 선택되었을 때만 다음 내용 표시
         if selected_sector:
-            display_sector_data(selected_sector, df_0702, search_query=None)
+            display_sector_data(selected_sector, df_0702_2023, search_query=None)
             
 
 if __name__ == "__main__":
