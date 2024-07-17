@@ -1,6 +1,5 @@
 import streamlit as st
 st.set_page_config(page_icon="💸", layout="wide")
-
 import pandas as pd
 import numpy as np
 import os
@@ -13,6 +12,9 @@ import plotly.graph_objects as go
 import yfinance as yf
 import matplotlib.pyplot as plt
 import base64
+from fuzzywuzzy import process
+
+
 
 # 초기 세션 상태 설정
 def initialize_session_state():
@@ -29,7 +31,8 @@ show_pages(
         Page("pages/설문조사.py", "설문조사 페이지", "📊"),
         Page("pages/성향에 따른 ESG 기업 추천.py", "성향에 따른 ESG 기업 추천", "📊"),
         Page("pages/섹터별 ESG 기업 추천.py", "섹터별 ESG 기업 추천", "🏢"),
-        Page("pages/기업 상세 정보 페이지.py", "기업 상세 정보 페이지", "📈")
+        Page("pages/기업 상세 정보 페이지.py", "기업 상세 정보 페이지", "📈"),
+        Page("pages/시각장애인용 정보 페이지.py", "시각장애인용 정보 페이지", "📈")
     ]
 )
 
@@ -47,7 +50,7 @@ initialize_session_state()
 # 설문조사 부분
 st.title(":green[미래를 위한 가장 효과적인 투자] :sunglasses:")
 st.subheader(":green[<ESG마스터> 는 ESG 데이터를 기반으로 최적의 금융 투자를 돕는 플랫폼 입니다.]")
-st.markdown("<hr>", unsafe_allow_html=True)  # 구분선 추가
+# st.markdown("<hr>", unsafe_allow_html=True)  # 구분선 추가
 
 # 로컬 이미지를 base64로 인코딩하는 함수
 def get_base64_of_bin_file(bin_file):
@@ -101,37 +104,74 @@ main_content_style = """
 """
 st.markdown(main_content_style, unsafe_allow_html=True)
 
+
 # 페이지 상태 초기화
 if 'page' not in st.session_state:
     st.session_state.page = 'Home'
+    
+st.markdown("""
+    <style>
+    .vertical-line {
+        border-left: 7px solid white; /* 세로선 두께와 색상 */
+        height: 250px; /* 세로선 높이 */
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
 # 메인 함수: 레이아웃 및 사용자 상호작용 처리
 def main():
 
+    col1,col2,col3 = st.columns([1,0.1,1])
+    
     # ESG 성향 파악하기 섹션
-    esg_section = st.container()
-    with esg_section:
-        st.markdown("<h2 style='margin-bottom: 1px; margin-top: -20px; color: #FFFFFF;'>ESG 투자 성향 파악하기</h2>", unsafe_allow_html=True)
-        st.markdown("<h4 style='color: #FFFFFF;'>ESG 투자 성향 파악을 통해 "
+    with col1:
+        st.markdown("<h2 style='margin-bottom: 1px; margin-top: -20px; color: #FFFFFF; text-shadow: 0 0 5px #000000;'>ESG 투자 성향 파악하기</h2>", unsafe_allow_html=True)
+        st.markdown("<h4 style='color: #FFFFFF; text-shadow: 0 0 5px #000000;'>ESG 투자 성향 파악을 통해 "
                 "가장 적합한 ESG 기업을 추천받으세요.<br>"
                 "지금 바로! 아래의 버튼을 눌러 설문조사를 시작해 보세요!!</h4>", unsafe_allow_html=True)
     
         if st.button("성향 파악하기", key="survey"):
             switch_page('설문조사 페이지')
-    
-    st.markdown("<hr>", unsafe_allow_html=True)  # 구분선 추가
+            
+    with col2:
+        st.markdown('<div class="vertical-line"></div>', unsafe_allow_html=True)
 
-    # 기업 상세 페이지 섹션
-    company_section = st.container()
-    with company_section:
-        st.markdown("<h2 style='margin-bottom: -35px; color: #FFFFFF;'>기업 상세 페이지</h2>", unsafe_allow_html=True)
+    # CSS 스타일 설정
+    vertical_line_style = """
+    <style>
+    .vertical-line {
+        border-left: 3px solid white; /* 세로선 두께와 색상 */
+        height: 250px; /* 세로선 높이 */
+    }
+    </style>
+    """
 
-        company_name = st.text_input("", placeholder="기업 이름을 입력하세요.", key="company_input")
+    st.markdown(vertical_line_style, unsafe_allow_html=True)
+
         
-        if st.button("바로가기", key="detail") and company_name:
+        
+    # 기업 상세 페이지 섹션
+    with col3:
+        st.markdown("<h2 style='margin-bottom: -35px; color: #FFFFFF; text-shadow: 0 0 5px #000000;'>기업 상세 페이지</h2>", unsafe_allow_html=True)
+
+        # 기업 선택 자동완성 입력 창
+        selected_company = st.text_input("", placeholder="종목명을 입력하세요", key="company_input")
+        df = st.session_state.df_0702
+        if selected_company:
+            company_names = df['회사명'].str.lower().unique()  # 기업명을 소문자로 변환하여 비교
+            matches = process.extract(selected_company.lower(), company_names, limit=11)
+            filtered_matches = [match[0] for match in matches if match[1] >= 20 and match[0].lower().startswith(selected_company.lower())]
+
+            if len(filtered_matches) == 1:
+                selected_company = filtered_matches[0]
+
+            selected_company = st.selectbox("", filtered_matches)
+        
+        if st.button("바로가기", key="detail") and selected_company:
             # 회사 이름을 세션 상태에 저장
-            st.session_state.selected_company = company_name
+            st.session_state.selected_company = selected_company.upper()
             switch_page('기업 상세 정보 페이지')
+
 
 
 if __name__ == "__main__":
