@@ -8,3 +8,6 @@ plotly
 yfinance
 matplotlib
 finance-datareader
+fuzzywuzzy
+SpeechRecognition
+pyttsx3
