@@ -1,4 +1,5 @@
 import streamlit as st
+st.set_page_config(page_icon="💸", layout="wide")
 import pandas as pd
 from streamlit_extras.switch_page_button import switch_page
 
