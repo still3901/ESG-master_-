@@ -11,6 +11,6 @@ finance-datareader
 fuzzywuzzy
 SpeechRecognition
 pyttsx3
-SpeechRecognition
-pipwin
-pyaudio
+#SpeechRecognition
+#pipwin
+#pyaudio
