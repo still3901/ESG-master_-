@@ -11,6 +11,8 @@ finance-datareader
 fuzzywuzzy
 SpeechRecognition
 pyttsx3
+
+--upgrade pip
 portaudio
 pyaudio
 pipwin
