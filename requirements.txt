@@ -12,4 +12,4 @@ fuzzywuzzy
 SpeechRecognition
 pyttsx3
 pyaudio
-portaudio19-dev
+pipwin
