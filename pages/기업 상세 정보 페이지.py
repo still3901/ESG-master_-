@@ -24,21 +24,13 @@ def get_stock_data(ticker, start_date, end_date):
         st.error(f"Error fetching data for {ticker}: {e}")
         return None
 
+
+#스타차트 비교 그래프
 def star_chart(filtered_df,company_name):
-    st.title('Star Chart Example')
-
-    rating_mapping = {'A+': 7, 'A': 6, 'B+': 5, 'B': 4, 'C': 3, 'D': 2, '': 1}
     
-    # Apply the mapping to convert ratings to numerical values
-    filtered_df['재무구조 등급'] = filtered_df['재무구조 등급'].map(rating_mapping)
-    filtered_df['성장성 등급'] = filtered_df['성장성 등급'].map(rating_mapping)
-    filtered_df['E_환경등급'] = filtered_df['E_환경등급'].map(rating_mapping)
-    filtered_df['S_사회등급'] = filtered_df['S_사회등급'].map(rating_mapping)
-    filtered_df['G_지배구조등급'] = filtered_df['G_지배구조등급'].map(rating_mapping)
-
     com_2023 = filtered_df[['years', '재무구조 등급', '성장성 등급', 'G_지배구조등급', 'E_환경등급', 'S_사회등급']]
     com_2023 = com_2023[com_2023['years'] == 2023]
-    com_2023 = com_2023.drop(columns=['years'])
+    com_2023 = com_2023.drop(columns=['years'])   
     
     sector_value = filtered_df.iloc[0]['업종명']
     df_sector = filtered_df[filtered_df['업종명'] == sector_value]
@@ -53,16 +45,17 @@ def star_chart(filtered_df,company_name):
     
     label_loc = np.linspace(start=0, stop=2*np.pi, num=len(radii))
     
-    fig2 = plt.figure(figsize=(3, 3))
+    fig2 = plt.figure(figsize=(3, 3)) # 그래프 크기 설정
     ax2 = fig2.add_subplot(111, polar=True)
-    ax2.plot(label_loc, radii, label=company_name, linestyle='dashed', color='lightcoral')
-    ax2.fill(label_loc, radii, color='lightcoral', alpha=0.3)
-    ax2.plot(label_loc, radii_2, label=sector_value+" 평균ESG등급", linestyle='dashed', color='green')
-    ax2.fill(label_loc, radii_2, color='green', alpha=0.3)        
+    ax2.plot(label_loc, radii, label=company_name, linestyle='solid', color='orange')
+    ax2.fill(label_loc, radii, color=(1.0, 0.784, 0.392), alpha=0.3)
+
+    ax2.plot(label_loc, radii_2, label=sector_value+"평균ESG등급", linestyle='dashed', color='grey')
+    ax2.fill(label_loc, radii_2, color=(0.706, 0.706, 0.706), alpha=0.3)      
     ax2.set_xticks(label_loc, labels=None)
-    ax2.set_xticklabels(labels, fontsize=13)
+    ax2.set_xticklabels(labels, fontsize=5)
     ax2.set_yticklabels([])
-    ax2.legend()
+    ax2.legend(loc='upper right', bbox_to_anchor=(1.65, 1.1), fontsize='small')
     st.pyplot(fig2)
 
 
@@ -71,10 +64,10 @@ def esg_grade_sales(filtered_df):
     # 2019년을 제외한 데이터 필터링
     filtered_df = filtered_df[filtered_df['years'] != 2019]
 
-    fig, ax1 = plt.subplots(figsize=(4, 3))
+    fig, ax1 = plt.subplots(figsize=(10 ,6))
 
     # 전년도ESG를 숫자로 매핑
-    esg_order = ['없음', 'D', 'C', 'B', 'B+', 'A', 'A+']  # 등급 순서를 수정
+    esg_order = ['없음', 'D0', 'C0', 'B0', 'B+', 'A0', 'A+']  # 등급 순서를 수정
     filtered_df['전년도ESG_숫자'] = filtered_df['전년도ESG'].map(lambda x: esg_order.index(x))
 
     # 전년도ESG를 막대 차트로 그리기
@@ -88,7 +81,6 @@ def esg_grade_sales(filtered_df):
     # y축 라벨 설정 (상위 등급이 나중에 오도록)
     ax1.set_yticks(range(len(esg_order)))
     ax1.set_yticklabels(esg_order)
-    # y축 반전을 제거하여 "없음"이 바닥에 위치하고 "A+"가 위에 위치
 
     # 매출액, 영업이익, 자산총계를 꺾은선 차트로 그리기
     ax2 = ax1.twinx()
@@ -139,10 +131,22 @@ def main():
 
         with col2:
             filtered_df_2023 = filtered_df[filtered_df['years'] == 2023]
+            
             if not filtered_df_2023.empty:
                 grade = filtered_df_2023.iloc[0]['종합등급']
-                st.title(f"{company_name}의 2024년 예측 ESG등급!!")
-                st.title(f"{grade}")
+                st.markdown(
+                f'<h2 style="margin-bottom: 5px; margin-right: 20px; color: #008100; text-align: center;">"{company_name}"의 2024년 ESG등급 예측!!</h2>',
+                unsafe_allow_html=True)
+
+                st.markdown(
+                    '<div style="padding: 7px; background-color: #3DB7CC; border-radius: 0px; '
+                    'text-align: center; width: 450px; margin-left: 100px; margin: 0 auto;">'
+                        '<div style="border: 3px solid #FFFFFF; padding: 0px;">'
+                            f'<h1 style="margin-top: 0px; font-size: 40px; color: #FFFFFF; margin-left: 10px;">{grade}</h1>'
+                        '</div>'
+                    '</div>',
+                    unsafe_allow_html=True
+                )
             else:
                 st.write(f"{company_name} 회사의 2023년 데이터가 없습니다.")
 
@@ -195,12 +199,17 @@ def main():
                 
                 st.markdown("<hr>", unsafe_allow_html=True)  # 구분선 추가
                 
-                st.title(f"{company_name}의 비교 그래프를 확인하세요")
-                tabs = st.tabs(["Star Chart", "ESG Grade vs Sales"])
-                with tabs[0]:
-                    star_chart(filtered_df,company_name)
-                with tabs[1]:
-                    esg_grade_sales(filtered_df)
+                # 비교 그래프
+                st.title(f"{company_name}의 비교 그래프를 선택하여 확인하세요")
+                col1, col2 = st.columns(2)
+
+                with col1:
+                    if st.button("섹터 평균 ESG등급과의 비교"):
+                        star_chart(filtered_df, company_name)
+
+                with col2:
+                    if st.button("ESG등급 및 재무성과 변화 추이"):
+                        esg_grade_sales(filtered_df)
     else:
         st.title(":green[기업 포트폴리오] :sunglasses:")
         st.subheader(":green[곧 다가올 ESG 공시 의무화!]")
