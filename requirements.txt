@@ -13,3 +13,4 @@ SpeechRecognition
 pyttsx3
 SpeechRecognition
 pipwin
+pyaudio
