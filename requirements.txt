@@ -12,3 +12,4 @@ fuzzywuzzy
 SpeechRecognition
 pyttsx3
 SpeechRecognition
+pipwin
