@@ -11,5 +11,5 @@ finance-datareader
 fuzzywuzzy
 SpeechRecognition
 pyttsx3
-speech_recognition
+SpeechRecognition
 threading
