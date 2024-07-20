@@ -11,4 +11,5 @@ finance-datareader
 fuzzywuzzy
 SpeechRecognition
 pyttsx3
-PyAudio
+pyaudio
+portaudio19-dev
