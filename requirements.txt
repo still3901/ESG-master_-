@@ -12,5 +12,4 @@ fuzzywuzzy
 SpeechRecognition
 pyttsx3
 speech_recognition
-portaudio
 threading
