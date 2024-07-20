@@ -11,8 +11,10 @@ finance-datareader
 fuzzywuzzy
 SpeechRecognition
 pyttsx3
-
+speech_recognition
 portaudio
+threading
+
 pyaudio
 pipwin
 p5py
