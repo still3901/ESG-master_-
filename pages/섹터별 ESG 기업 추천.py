@@ -1,11 +1,11 @@
 import streamlit as st
-st.set_page_config(page_icon="💸", layout="wide")
+st.set_page_config(layout="wide")
 import pandas as pd
 import plotly.express as px
 from streamlit_extras.switch_page_button import switch_page
 import random
+import plotly.graph_objects as go
 
-# 페이지 설정: 넓은 레이아웃
 
 def display_title_and_description():
     # 페이지 제목 및 설명
@@ -18,6 +18,7 @@ def display_title_and_description():
 def display_search_all_companies(df_0702):
     # 전체 데이터를 대상으로 기업 검색 기능 추가
     st.header("기업을 검색하세요")
+    global search_query
     search_query = st.text_input("기업명을 입력하세요")
 
     if search_query:
@@ -37,9 +38,6 @@ def display_search_all_companies(df_0702):
         if not df_search.empty:
             first_result_sector = df_search.iloc[0]['업종명']
             st.session_state['selected_sector'] = first_result_sector
-            print(first_result_sector)
-            # GICS_Sector가 변경될 수 있으므로, 섹터 데이터를 필터링합니다.
-        #    display_sector_data(first_result_sector, df_0702, search_query)
     else:
         # 초기화
         if 'selected_sector' in st.session_state:
@@ -66,16 +64,6 @@ def display_sector_buttons(sectors):
                 selected_sector = sector
 
                 st.session_state['selected_sector'] = selected_sector
-
-    # for i, sector in enumerate(sectors):
-    #     # 버튼의 스타일을 설정하여 크기를 동일하게 설정
-
-    #     st.markdown(button_style, unsafe_allow_html=True)
-        
-    #     if cols[i].button(sector, use_container_width=True):
-    #         selected_sector = sector
-    #         st.session_state['selected_sector'] = selected_sector
-    
     return selected_sector
 
 def display_sector_data(selected_sector, df_0702, search_query=None):
@@ -98,27 +86,30 @@ def display_sector_data(selected_sector, df_0702, search_query=None):
 def display_esg_scores(df_0702, selected_sector):
     # 등급을 숫자 값으로 매핑
     grade_mapping = {
-        'A+': 3,
-        'A0': 2,
-        'B+': 1,
-        'B0': 0,
-        'C': 0,
-        'D': 0,
-        'B0 이하(자격없음)':0
+        'A+': 4,
+        'A0': 3,
+        'B+': 2,
+        'B0': 1,
+        'C': 1,
+        'D': 1,
+        'B0 이하(자격없음)':1,
+        'B 이하(자격 없음)':1,
     }
     
     # 숫자 값으로 매핑된 종합등급 추가
     df_0702['종합등급_숫자'] = df_0702['종합등급'].map(grade_mapping)
     
-    ## 예측 등급만있는게아니라
-    
     # 업종별 평균 ESG 등급 계산
     industries = ['건설', '금속', '금융', '기계', '기타금융', '기타서비스', '기타제조업', '농업, 임업 및 어업',
        '비금속', '서비스업', '섬유', '오락·문화', '운수', '유통업', '음식료품', '인프라', '전기전자',
-       '종이목재', '출판·매체복제', '통신업', '헬스케어', '화학']
+       '종이목재', '출판·매체복제', '통신업', '헬스케어', '화학',]
     df_0702_2023=df_0702[df_0702['years']==2023]
     scores = df_0702_2023[df_0702_2023['업종명'].isin(industries)].groupby('업종명')['종합등급_숫자'].mean().reindex(industries).fillna(0)
 
+    df_0702_com=df_0702[df_0702['회사명']==search_query]
+    
+    scores_com = df_0702_com[df_0702_com['업종명'].isin(industries)].groupby('업종명')['종합등급_숫자'].mean().reindex(industries).fillna(0)
+    
     # 숫자 값을 다시 등급으로 매핑
     reverse_grade_mapping = {v: k for k, v in grade_mapping.items()}
     scores_labels = scores.map(reverse_grade_mapping)
@@ -126,6 +117,15 @@ def display_esg_scores(df_0702, selected_sector):
     industry_df = pd.DataFrame({
         '업종': industries,
         '평균 ESG 등급': scores,
+        '평균 ESG 등급(레이블)': scores_labels
+    })
+    
+    scores_com = [max(score, 0) for score in scores_com]
+    # print(scores_com)
+    
+    industry_df_2 = pd.DataFrame({
+        '업종': industries,
+        '평균 ESG 등급': scores_com,
         '평균 ESG 등급(레이블)': scores_labels
     })
 
@@ -136,31 +136,39 @@ def display_esg_scores(df_0702, selected_sector):
     industry_df = industry_df.sort_values(by='평균 ESG 등급', ascending=False)
 
     st.header("섹터별 평균 ESG등급")
+    
     # 바 차트 생성
-    
-    fig = px.bar(industry_df, x='업종', y='평균 ESG 등급', text='평균 ESG 등급(레이블)')
-    fig.update_traces(textposition='outside')
-    
-    # 색상 강조
-    fig.update_traces(marker=dict(color=industry_df['색상']))
+    fig = go.Figure()
 
-    # y축 레이블을 등급으로 표기
+    fig.add_trace(go.Bar(
+        x=industry_df['업종'],
+        y=industry_df['평균 ESG 등급'],
+        text=industry_df['평균 ESG 등급(레이블)'],
+        marker_color=industry_df['색상'],
+        textposition='outside',
+        
+        name='평균 ESG 등급'
+    ))
+    
+     # 조건부로 name 설정
+    company_name = search_query if search_query else "기업을 검색하세요"
+    fig.add_trace(go.Bar(
+        x=industry_df_2['업종'],
+        y=industry_df_2['평균 ESG 등급'],
+        text=industry_df_2['평균 ESG 등급(레이블)'],
+        textposition='outside',
+        marker_color="#EF553B",
+        name=company_name
+    ))
+    
     fig.update_yaxes(
         tickmode='array',
-        tickvals=[0, 1, 2],
+        tickvals=[1, 2, 3],
         ticktext=['B', 'B+', 'A/A+']
     )
     
     st.plotly_chart(fig)
 
-
-# def display_sorting_criteria():
-#     # 기업 정렬 기준 설명
-#     st.write("""
-#     전년도 ESG에 비해 예측 ESG가 높은 걸 우선시 배치
-
-#     만약, 전년도에 비해 ESG 등급이 오른 기업이 없다면 상단에는 ESG 등급이 높은 기업을 배치
-#     """)
 
 def main():
     display_title_and_description()
@@ -191,7 +199,7 @@ def main():
                 return 'A0'
             elif x == 'B':
                 return 'B+'
-            elif x == 'B 이하(자격없음)':
+            elif x == 'B 이하(자격 없음)':
                 return 'B0 이하(자격없음)'
             else:
                 return x
