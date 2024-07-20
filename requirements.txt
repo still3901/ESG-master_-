@@ -13,3 +13,5 @@ SpeechRecognition
 pyttsx3
 pyaudio
 pipwin
+p5py
+PEP517
