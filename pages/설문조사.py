@@ -112,21 +112,21 @@ def display_survey_page():
     with col2:
         st.markdown('<div class="option-box"><b>선호하는 섹터를 선택하세요 (최대 3개)</b></div>', unsafe_allow_html=True)
         sectors_1 = [
-            '건설', '건설업', '금속', '금융', '기계', '기계·장비', '기타금융', '기타서비스', '기타제조업',
-       '농업, 임업 및 어업', '비금속', '비금속광물', '서비스업'
+            '건설', '금속', '금융', '기계', '기타금융', '기타서비스', '기타제조업',
+       '농업, 임업 및 어업', '비금속', '서비스업'
         ]
         
                 
         sectors_2 = [
-            '섬유·의류', '섬유의복', '숙박·음식', '오락·문화', '운송장비·부품', '운수장비', '운수창고업',
-       '유통', '유통업', '음식료·담배', '음식료품', '의료·정밀기기', '의료정밀'
+            '섬유', '오락·문화', '운수', '유통업', '음식료품', '인프라','전기전자',
+            '종이목재', '출판·매체복제', '통신업'
         ]
         
         
         sectors_3 = [
-            '의약품', '일반전기전자', '전기·가스·수도', '전기가스업', '전기전자', '제약', '종이·목재',
-       '종이목재', '철강금속', '출판·매체복제', '통신업', '화학'
+            '화학','헬스케어'
         ] 
+        
         
         # 세 개의 열로 나누어 각 섹터를 배치합니다.
         col_a, col_b, col_c = st.columns(3)
@@ -154,7 +154,7 @@ def display_survey_page():
     if st.button("결과 보기") and len(selected_sectors) <= 3:
         st.session_state.choice1 = choice1
         st.session_state.selected_sectors = selected_sectors
-        st.session_state.page = 'recommendation'
+        st.session_state.page = '성향에 따른 ESG 기업 추천'
         switch_page('성향에 따른 ESG 기업 추천')
         st.experimental_rerun()
 

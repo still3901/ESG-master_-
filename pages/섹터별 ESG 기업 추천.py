@@ -13,13 +13,21 @@ def display_title_and_description():
     # ESG 기업 추천 💹
     각 분야에서 ESG 성과가 우수한 기업, ESG 성장가능성이 있는 기업을 제시!
     """)
+    
+def display_page():
+    # st.title("성향에 따른 ESG 기업 추천")
+    choice1 = st.session_state.get('choice1', '선택되지 않음')
+    selected_sectors = st.session_state.get('selected_sectors', [])
+    
+    st.write(f"선택한 ESG 상품 종류: {choice1}")
+    st.write(f"선택한 섹터: {', '.join(selected_sectors)}")
     st.markdown("<hr>", unsafe_allow_html=True)  # 구분선 추가
 
 def display_search_all_companies(df_0702):
     # 전체 데이터를 대상으로 기업 검색 기능 추가
     st.header("기업을 검색하세요")
     global search_query
-    search_query = st.text_input("기업명을 입력하세요")
+    search_query = st.text_input("기업명을 입력하세요").upper()
 
     if search_query:
         df_search = df_0702[df_0702['회사명'].str.contains(search_query, case=False, na=False)]
@@ -150,7 +158,7 @@ def display_esg_scores(df_0702, selected_sector):
         name='평균 ESG 등급'
     ))
     
-     # 조건부로 name 설정
+    
     company_name = search_query if search_query else "기업을 검색하세요"
     fig.add_trace(go.Bar(
         x=industry_df_2['업종'],

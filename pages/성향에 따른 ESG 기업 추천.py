@@ -5,6 +5,8 @@ from streamlit_extras.switch_page_button import switch_page
 
 def display_page():
     st.title("성향에 따른 ESG 기업 추천")
+    st.subheader("2024년 예측한 ESG종합등급이 B+이상인 기업을 보여줍니다.")
+    st.markdown("<br>", unsafe_allow_html=True)  # 구분선 추가
     choice1 = st.session_state.get('choice1', '선택되지 않음')
     selected_sectors = st.session_state.get('selected_sectors', [])
     

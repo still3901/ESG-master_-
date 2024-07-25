@@ -68,7 +68,8 @@ def esg_grade_sales(filtered_df):
 
     # 전년도ESG를 숫자로 매핑
     esg_order = ['없음', 'D0', 'C0', 'B0', 'B+', 'A0', 'A+']  # 등급 순서를 수정
-    filtered_df['전년도ESG_숫자'] = filtered_df['전년도ESG'].map(lambda x: esg_order.index(x))
+    esg_mapping = {grade: idx for idx, grade in enumerate(esg_order)}
+    filtered_df['전년도ESG_숫자'] = filtered_df['전년도ESG'].map(esg_mapping)
 
     # 전년도ESG를 막대 차트로 그리기
     ax1.bar(filtered_df['years'], filtered_df['전년도ESG_숫자'], color='lightblue', alpha=0.6, label='ESG등급')
@@ -140,7 +141,7 @@ def main():
 
                 st.markdown(
                     '<div style="padding: 7px; background-color: #3DB7CC; border-radius: 0px; '
-                    'text-align: center; width: 450px; margin-left: 100px; margin: 0 auto;">'
+                    'text-align: center; width: 350px; margin-left: 100px; margin: 0 auto;">'
                         '<div style="border: 3px solid #FFFFFF; padding: 0px;">'
                             f'<h1 style="margin-top: 0px; font-size: 40px; color: #FFFFFF; margin-left: 10px;">{grade}</h1>'
                         '</div>'
@@ -200,15 +201,16 @@ def main():
                 st.markdown("<hr>", unsafe_allow_html=True)  # 구분선 추가
                 
                 # 비교 그래프
-                st.title(f"{company_name}의 비교 그래프를 선택하여 확인하세요")
+                st.title(f"{company_name}의 비교 그래프를 확인하세요")
+                st.markdown("<br>", unsafe_allow_html=True)
                 col1, col2 = st.columns(2)
 
                 with col1:
-                    if st.button("섹터 평균 ESG등급과의 비교"):
+                    if st.header("섹터 평균 ESG등급과의 비교"):
                         star_chart(filtered_df, company_name)
 
                 with col2:
-                    if st.button("ESG등급 및 재무성과 변화 추이"):
+                    if st.header("ESG등급 및 재무성과 변화 추이"):
                         esg_grade_sales(filtered_df)
     else:
         st.title(":green[기업 포트폴리오] :sunglasses:")

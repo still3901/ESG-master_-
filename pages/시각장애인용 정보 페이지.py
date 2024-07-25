@@ -1,21 +1,21 @@
-# import streamlit as st
-# st.set_page_config(page_icon="💸", layout="wide")
-# import pandas as pd
-# import numpy as np
-# import os
-# from pykrx import stock
-# import warnings
-# import datetime as dt
-# from streamlit_extras.switch_page_button import switch_page
-# from st_pages import Page, show_pages, add_page_title
-# import plotly.graph_objects as go
-# import yfinance as yf
-# import matplotlib.pyplot as plt
-# import base64
-# from fuzzywuzzy import process
-# import pyttsx3
-# import speech_recognition as sr
-# import threading
+import streamlit as st
+st.set_page_config(page_icon="💸", layout="wide")
+import pandas as pd
+import numpy as np
+import os
+from pykrx import stock
+import warnings
+import datetime as dt
+from streamlit_extras.switch_page_button import switch_page
+from st_pages import Page, show_pages, add_page_title
+import plotly.graph_objects as go
+import yfinance as yf
+import matplotlib.pyplot as plt
+import base64
+from fuzzywuzzy import process
+import pyttsx3
+import speech_recognition as sr
+
 
 # def read_text(text):
 #     # pyttsx3 초기화
@@ -32,7 +32,7 @@
 # # 예제 텍스트
 # text_to_read = "본인의 성향을 선택하세요 ,일번,  매년 최상위 등급 유지 ,이번, 지속적인 등급 향상 중인 주  ,삼번, 내년 급등 기대주 ,사번, 단숨에 상위권 진입"
 # # 텍스트 읽기 함수 호출
-
+# read_text(text_to_read)
 # df= pd.read_csv('df_0702.csv')
 # # 음성 인식기 생성
 # recognizer = sr.Recognizer()
@@ -53,8 +53,6 @@
 # df['종합등급_숫자'] = df['종합등급'].map(grade_mapping)
 
 
-# # n 달라지니깐
-# #모든데이터에 그룹바이느는
 # #pd.read_Csc 불러오면 일부데이터에대해서만
 # my_dict = {'1번': pd.read_csv("1정상급수호자.csv"),
 #                     '2번': pd.read_csv("2상승세리더.csv"),
@@ -110,14 +108,72 @@
 #     read_text(f"{df_last['회사명']}의 2022년 ESG등급은 {(df_last['2022년'])}2023년 ESG등급은 {df_last['2023년']}2024년 ESG등급은 {df_last['2024년']}입니다.")
 #     read_text(f"ESG등급을 상세히 보시려면 1번 끝내려면 2번을 말하세요")
 
-#     audio = recognizer.listen(source)
-#     text = recognizer.recognize_google(audio, language='ko-KR')
+#     try:
+#         audio = recognizer.listen(source)
+#         text = recognizer.recognize_google(audio, language='ko-KR')
+#     except:
+#         text="2번"
+
 #     print("audio=",text)
 
 #     if text=="1번":
 #         read_text("네 알겠습니다.")
-#         read_text(f"{df_last['회사명']}의 사회_등급은 {(df_last['S_value_등급'])}환경_등급은 {df_last['E_value_등급']}지배구조_등급은 {df_last['G_value_등급']} 성장성_등급은 {df_last['성장성_value_등급']} 재무구조_등급은 {df_last['재무_value_등급']}입니다.")
+#         read_text(f"{df_last['회사명']}의 사회_등급은 {(df_last['S_value_등급'])}환경_등급은 {df_last['E_value_등급']}지배구조_등급은 {df_last['G_value_등급']} 성장성_등급은 {df_last['성장성_value_등급']} 재무구조_등급은 {df_last['재무_value_등급']}입니다. 이용해 주셔서 대단히 감사합니다.")
 #     elif text=="2번":
 #         read_text("네 알겠습니다.")
 #     else:
 #         read_text("네 알겠습니다.")
+
+# import pyttsx3
+
+# # engine = pyttsx3.init()
+# # voices = engine.getProperty('voices')
+# # for voice in voices:
+# #     print(voice, voice.id)
+# #     engine.setProperty('voice', voice.id)
+# #     engine.say("Hello World!")
+# #     engine.runAndWait()
+# #     engine.stop()
+# import pyttsx3
+# voice_engine = pyttsx3.init()
+
+# voices = voice_engine.getProperty('voices')
+# voice_engine.setProperty('voice', voices[1].id) #changing index changes voices but ony 0 and 1 are working here
+# voice_engine.say('본인의 성향을 선택하세요 ,일번,  매년 최상위 등급 유지 ,이번, 지속적인 등급 향상 중인 주  ,삼번, 내년 급등 기대주 ,사번, 단숨에 상위권 진입')
+# voice_engine.runAndWait()
+
+import requests
+import os
+
+def get_clova_tts(text, output_file):
+    url = "https://naveropenapi.apigw.ntruss.com/voice/v1/tts"
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "X-NCP-APIGW-API-KEY-ID": "YOUR_CLIENT_ID",  # API Key ID
+        "X-NCP-APIGW-API-KEY": "YOUR_CLIENT_SECRET", # API Key Secret
+    }
+    data = {
+        "speaker": "mijin",  # 한국어 음성
+        "speed": "0",
+        "text": text
+    }
+    response = requests.post(url, headers=headers, data=data)
+    if response.status_code == 200:
+        with open(output_file, 'wb') as f:
+            f.write(response.content)
+        print(f"TTS audio saved as {output_file}")
+    else:
+        print("Error:", response.status_code, response.text)
+
+def play_audio(file_path):
+    from playsound import playsound
+    playsound(file_path)
+
+if __name__ == "__main__":
+    text_to_speak = '본인의 성향을 선택하세요, 일번, 매년 최상위 등급 유지, 이번, 지속적인 등급 향상 중인 주, 삼번, 내년 급등 기대주, 사번, 단숨에 상위권 진입'
+    output_file = "output.mp3"
+    
+    get_clova_tts(text_to_speak, output_file)
+    play_audio(output_file)
+
+
