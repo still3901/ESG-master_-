@@ -39,7 +39,7 @@ DATA_PATH = "./"
 SEED = 42
 
 # CSV 데이터를 불러오는 함수 (캐싱)
-@st.cache_data(ttl=900)
+# @st.cache_data(ttl=900)
 def load_csv(path):
     return pd.read_csv(path)
 
