@@ -11,11 +11,10 @@ def display_title_and_description():
     # 페이지 제목 및 설명
     st.write("""
     # ESG 기업 추천 💹
-    각 분야에서 ESG 성과가 우수한 기업, ESG 성장가능성이 있는 기업을 제시!
+    ## 각 분야에서 ESG 성과가 우수한 기업, ESG 성장가능성이 있는 기업을 제시!
     """)
-    
-def display_page():
-    # st.title("성향에 따른 ESG 기업 추천")
+
+    st.markdown("<br>", unsafe_allow_html=True)
     choice1 = st.session_state.get('choice1', '선택되지 않음')
     selected_sectors = st.session_state.get('selected_sectors', [])
     

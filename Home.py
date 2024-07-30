@@ -1,5 +1,4 @@
 import streamlit as st
-# st.set_page_config(page_icon="💸", layout="wide")
 import pandas as pd
 import numpy as np
 import os
@@ -14,9 +13,6 @@ import matplotlib.pyplot as plt
 import base64
 from fuzzywuzzy import process
 
-
-st.set_page_config(page_icon="💸", layout="wide")
-
 # 초기 세션 상태 설정
 def initialize_session_state():
     if "initialized" not in st.session_state:
@@ -24,16 +20,19 @@ def initialize_session_state():
         st.session_state.df_0702 = pd.read_csv("df_0702.csv")  # CSV 파일 경로 업데이트
 
 # 페이지 설정
+def add_page_title():
+    st.set_page_config(page_icon="💸", layout="wide")
+    
 add_page_title()
 
 show_pages(
     [
         Page("Home.py", "Home", "🏠"),
-        Page("pages/설문조사.py", "설문조사 페이지", "📊"),
+        Page("pages/설문조사.py", "설문조사 페이지", "📋"),
         Page("pages/성향에 따른 ESG 기업 추천.py", "성향에 따른 ESG 기업 추천", "📊"),
         Page("pages/섹터별 ESG 기업 추천.py", "섹터별 ESG 기업 추천", "🏢"),
         Page("pages/기업 상세 정보 페이지.py", "기업 상세 정보 페이지", "📈"),
-        Page("pages/시각장애인용 정보 페이지.py", "시각장애인용 정보 페이지", "📈")
+        Page("pages/시각장애인용 정보 페이지.py", "시각장애인용 정보 페이지", "🔊")
     ]
 )
 

@@ -68,12 +68,10 @@ def esg_grade_sales(filtered_df):
 
     # 전년도ESG를 숫자로 매핑
     esg_order = ['없음', 'D0', 'C0', 'B0', 'B+', 'A0', 'A+']  # 등급 순서를 수정
-    esg_mapping = {grade: idx for idx, grade in enumerate(esg_order)}
-    filtered_df['전년도ESG_숫자'] = filtered_df['전년도ESG'].map(esg_mapping)
-
+   
     # 전년도ESG를 막대 차트로 그리기
     ax1.bar(filtered_df['years'], filtered_df['전년도ESG_숫자'], color='lightblue', alpha=0.6, label='ESG등급')
-    ax1.set_xlabel('Years')
+    ax1.set_xlabel('연도')
     ax1.set_ylabel('ESG등급', color='b')
     ax1.tick_params(axis='y', labelcolor='b')
     ax1.set_xticks(filtered_df['years'].unique())
@@ -143,7 +141,7 @@ def main():
                     '<div style="padding: 7px; background-color: #3DB7CC; border-radius: 0px; '
                     'text-align: center; width: 350px; margin-left: 100px; margin: 0 auto;">'
                         '<div style="border: 3px solid #FFFFFF; padding: 0px;">'
-                            f'<h1 style="margin-top: 0px; font-size: 40px; color: #FFFFFF; margin-left: 10px;">{grade}</h1>'
+                            f'<h1 style="margin-top: 0px; font-size: 35px; color: #FFFFFF; margin-left: 10px;">{grade}</h1>'
                         '</div>'
                     '</div>',
                     unsafe_allow_html=True
