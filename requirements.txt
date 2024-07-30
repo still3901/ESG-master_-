@@ -1,9 +1,8 @@
-streamlit==1.22.0
+streamlit==1.16.0
 numpy
 pandas
 pykrx
-streamlit_extras==0.3.3
-switch_page
+streamlit_extras
 st-pages
 plotly
 yfinance
