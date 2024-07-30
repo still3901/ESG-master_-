@@ -1,8 +1,8 @@
-streamlit==1.21.0
+streamlit==1.22.0
 numpy
 pandas
 pykrx
-streamlit_extras==0.4.3
+streamlit_extras==0.3.3
 switch_page
 st-pages
 plotly
