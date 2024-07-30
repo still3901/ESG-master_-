@@ -6,8 +6,7 @@ from pykrx import stock
 import warnings
 import datetime as dt
 from streamlit_extras.switch_page_button import switch_page
-#from st_pages import Page, show_pages, add_page_title
-#from st_pages import show_pages, add_page_title
+from st_pages import Page, show_pages, add_page_title
 import plotly.graph_objects as go
 import yfinance as yf
 import matplotlib.pyplot as plt
