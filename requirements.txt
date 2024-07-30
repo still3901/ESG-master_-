@@ -9,8 +9,3 @@ yfinance
 matplotlib
 finance-datareader
 fuzzywuzzy
-SpeechRecognition
-pyttsx3
-#SpeechRecognition
-#pipwin
-#pyaudio
