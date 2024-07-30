@@ -3,7 +3,7 @@ numpy
 pandas
 pykrx
 streamlit_extras
-st-pages==0.0.4
+#st-pages
 plotly
 yfinance
 matplotlib
